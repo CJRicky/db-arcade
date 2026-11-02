@@ -1,0 +1,50 @@
+# Test, then publish web/ to GitHub Pages.
+name: Deploy dB Arcade to GitHub Pages
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time; a newer push waits instead of cancelling a running deploy
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+      - name: Unit and Python-parity tests
+        run: node tests/run-node.js
+
+  deploy:
+    needs: test
+    # Only the repository's default branch is published (other branches just run the tests)
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/configure-pages@v5
+      - name: Stamp the commit into the service worker (every deploy becomes a new app version)
+        run: |
+          sed -i "s/^const VERSION = \"dev\";/const VERSION = \"${GITHUB_SHA::12}\";/" web/service-worker.js
+          grep -q "^const VERSION = \"${GITHUB_SHA::12}\";" web/service-worker.js
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: web
+      - id: deployment
+        uses: actions/deploy-pages@v4
