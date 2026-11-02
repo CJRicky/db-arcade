@@ -1,0 +1,10 @@
+{
+  "name": "db-arcade-pwa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "dB Arcade as a static, offline-capable PWA (port of the Python/Tkinter dB Arcade)",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/run-node.js"
+  }
+}

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>dB Arcade tests</title>
+  <style>body { font: 13px/1.4 Consolas, monospace; white-space: pre-wrap; padding: 12px; }</style>
+</head>
+<body>
+<div id="out">running…</div>
+<script type="module">
+  import { run } from "./harness.js";
+  import "./all.js";
+
+  const lines = [];
+  const result = await run((line) => lines.push(line));
+  document.getElementById("out").textContent = lines.join("\n");
+  window.__testResult = { ...result, report: lines.join("\n") };
+</script>
+</body>
+</html>

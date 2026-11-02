@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>dB Arcade</title>
+  <meta name="description" content="A game for fast mental dB / dBm math in fibre optics. Works offline.">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="dB Arcade">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+<div id="update" class="update" role="status" hidden>
+  <span>A new version is ready.</span>
+  <button id="update-reload" class="btn small" type="button">Reload</button>
+</div>
+
+<main>
+  <!-- ======================================================== Play -->
+  <section id="view-play" class="view" aria-labelledby="tab-play">
+
+    <div id="menu" class="screen">
+      <h1 class="title">dB ARCADE</h1>
+      <p class="muted">Fast mental dB / dBm math for fibre links. Power answers accept units:
+        <span class="mono">20u</span> = 20 µW, <span class="mono">0.5m</span> = 0.5 mW.</p>
+
+      <fieldset class="modes">
+        <legend class="section">Mode</legend>
+        <div id="modes" class="segmented"></div>
+        <p id="mode-desc" class="muted small"></p>
+      </fieldset>
+
+      <label class="section" for="level">Start level / practice skill</label>
+      <select id="level" class="select"></select>
+      <p id="level-tagline" class="muted small"></p>
+
+      <button id="start" class="btn primary big" type="button">Start</button>
+      <p id="best" class="banner"></p>
+
+      <h2 id="preview-title" class="section"></h2>
+      <div id="preview" class="cards"></div>
+
+      <details class="settings">
+        <summary>Settings</summary>
+        <fieldset>
+          <legend>Answer keypad</legend>
+          <div id="keypad-choice" class="segmented"></div>
+          <p class="muted small">Auto shows the on-screen keypad on touch screens. Off uses the system keyboard.</p>
+        </fieldset>
+        <fieldset>
+          <legend>Theme</legend>
+          <div id="theme-choice" class="segmented"></div>
+        </fieldset>
+        <p class="muted small">Keys: Enter submits or continues, 1–4 picks a choice, Esc ends the game.</p>
+        <p id="app-status" class="muted small"></p>
+      </details>
+    </div>
+
+    <div id="game" class="screen" hidden>
+      <div class="hud">
+        <div class="hud-row">
+          <span id="hud-level" class="hud-level"></span>
+          <button id="end" class="btn small ghost" type="button">End</button>
+        </div>
+        <div class="hud-row hud-stats">
+          <span id="hud-lives" class="lives"></span>
+          <span id="hud-streak"></span>
+          <span id="hud-score"></span>
+          <span id="hud-timer" class="timer"></span>
+        </div>
+        <div id="progress" class="progress" role="progressbar" aria-label="Progress to the next level"
+             aria-valuemin="0" aria-valuemax="5"><div id="progress-bar"></div></div>
+        <p id="banner" class="banner small"></p>
+      </div>
+
+      <div class="question-card">
+        <p id="question" class="question" tabindex="-1"></p>
+        <p id="note" class="muted small"></p>
+      </div>
+      <div id="chain" class="chain" hidden></div>
+
+      <form id="answer-form" class="answer" autocomplete="off" novalidate>
+        <label for="answer" class="visually-hidden">Your answer</label>
+        <div class="answer-row">
+          <input id="answer" class="answer-input" type="text" inputmode="none" enterkeyhint="go"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <span id="unit" class="unit"></span>
+        </div>
+      </form>
+      <div id="choices" class="choices" hidden></div>
+
+      <div class="feedback">
+        <p id="verdict" class="verdict" role="status" aria-live="polite"></p>
+        <p id="diag" class="diag"></p>
+        <div id="fb-body"></div>
+        <p id="exact" class="muted small"></p>
+      </div>
+
+      <div id="pad" class="pad">
+        <div id="units" class="units" hidden></div>
+        <button class="key" type="button" data-key="7">7</button>
+        <button class="key" type="button" data-key="8">8</button>
+        <button class="key" type="button" data-key="9">9</button>
+        <button class="key fn" type="button" data-key="back" aria-label="Backspace">⌫</button>
+        <button class="key" type="button" data-key="4">4</button>
+        <button class="key" type="button" data-key="5">5</button>
+        <button class="key" type="button" data-key="6">6</button>
+        <button class="key fn" type="button" data-key="sign" aria-label="Change sign">±</button>
+        <button class="key" type="button" data-key="1">1</button>
+        <button class="key" type="button" data-key="2">2</button>
+        <button class="key" type="button" data-key="3">3</button>
+        <button class="key fn" type="button" data-key="." aria-label="Decimal point">.</button>
+        <button class="key zero" type="button" data-key="0">0</button>
+        <button id="action" class="btn primary big action" type="button">Submit</button>
+      </div>
+      <p id="hint" class="hint muted small"></p>
+    </div>
+
+    <div id="over" class="screen" hidden>
+      <h1 id="over-title" class="title"></h1>
+      <p id="over-best" class="banner"></p>
+      <div id="over-body"></div>
+      <div class="row">
+        <button id="again" class="btn primary big" type="button">Play again</button>
+        <button id="to-menu" class="btn big" type="button">Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== other views -->
+  <section id="view-explorer" class="view" aria-labelledby="tab-explorer" hidden></section>
+  <section id="view-rules" class="view" aria-labelledby="tab-rules" hidden></section>
+  <section id="view-logs" class="view" aria-labelledby="tab-logs" hidden></section>
+</main>
+
+<nav class="tabbar" aria-label="Sections">
+  <button id="tab-play" type="button" data-view="play" aria-current="page"><span aria-hidden="true">▶</span>Play</button>
+  <button id="tab-explorer" type="button" data-view="explorer"><span aria-hidden="true">⇅</span>Explorer</button>
+  <button id="tab-rules" type="button" data-view="rules"><span aria-hidden="true">≡</span>Rules</button>
+  <button id="tab-logs" type="button" data-view="logs"><span aria-hidden="true" class="mono">log</span>Log laws</button>
+</nav>
+</body>
+</html>
